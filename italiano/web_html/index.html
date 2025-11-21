@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simply TodoTask</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <style>
+        /* Reset e stili globali */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Componenti comuni */
+        .modern-card {
+            background-color: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            margin: 8px;
+            padding: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .modern-button {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 12px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modern-button:hover {
+            background-color: #1976D2;
+        }
+
+        .modern-button:active {
+            background-color: #0D47A1;
+        }
+
+        /* Schermate */
+        .screen {
+            display: none;
+            width: 100%;
+            height: 100vh;
+            padding: 15px;
+            overflow: auto;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        /* Schermata benvenuto */
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .welcome-logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 25px;
+            object-fit: contain;
+        }
+
+        .welcome-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2E86AB;
+            margin-bottom: 25px;
+        }
+
+        .welcome-text {
+            font-size: 14px;
+            color: #555555;
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+
+        .welcome-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 300px;
+            margin-bottom: 60px;
+        }
+
+        .welcome-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: auto;
+            margin-bottom: 20px;
+        }
+
+        .welcome-version {
+            font-size: 11px;
+            font-weight: bold;
+            color: #333333;
+        }
+
+        .welcome-author {
+            font-size: 11px;
+            color: #2E86AB;
+        }
+
+        .welcome-github {
+            font-size: 11px;
+            color: #666666;
+            cursor: pointer;
+        }
+
+        .welcome-date {
+            font-size: 10px;
+            color: #888888;
+        }
+
+        /* Schermata principale */
+        .main-header {
+            background-color: #2E86AB;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: white;
+        }
+
+        .header-icon {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: bold;
+            flex-grow: 1;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .tasks-container {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .task-card {
+            background-color: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            margin: 8px 0;
+            padding: 16px;
+        }
+
+        .task-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .task-title {
+            color: #2E86AB;
+            font-size: 14px;
+            font-weight: bold;
+            flex-grow: 1;
+            cursor: pointer;
+        }
+
+        .task-title.has-link:hover {
+            text-decoration: underline;
+        }
+
+        .subtask {
+            display: flex;
+            align-items: flex-start;
+            margin: 8px 0;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+
+        .subtask:hover {
+            background-color: #f5f5f5;
+        }
+
+        .subtask-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            cursor: pointer;
+            flex-shrink: 0;
+            margin-top: 0;
+        }
+
+        .subtask-label {
+            font-size: 11px;
+            color: #333333;
+            flex-grow: 1;
+            cursor: pointer;
+            padding: 2px 0;
+            user-select: none;
+        }
+
+        .subtask-label.completed {
+            color: #4CAF50;
+            text-decoration: line-through;
+        }
+
+        /* Modali */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 25px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2E86AB;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-message {
+            font-size: 14px;
+            color: #333333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        /* Menu */
+        .menu-bar {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 4px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .menu-item {
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .menu-item:hover {
+            background-color: #e3f2fd;
+        }
+
+        /* Tab per personalizzazione */
+        .tab-container {
+            width: 100%;
+            max-width: 950px;
+            margin: 0 auto;
+        }
+
+        .tab-header {
+            display: flex;
+            border-bottom: 1px solid #c0c0c0;
+            margin-bottom: 5px;
+        }
+
+        .tab-button {
+            background-color: #e0e0e0;
+            padding: 10px 20px;
+            margin-right: 3px;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+            font-weight: bold;
+            color: #555555;
+            cursor: pointer;
+        }
+
+        .tab-button.active {
+            background-color: white;
+            color: #2E86AB;
+            border-bottom: 2px solid #2E86AB;
+        }
+
+        .tab-button:hover {
+            background-color: #d0d0d0;
+        }
+
+        .tab-content {
+            background-color: white;
+            border: 1px solid #c0c0c0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 5px;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* Input e controlli */
+        input[type="text"], input[type="file"], select {
+            padding: 8px 12px;
+            border: 1px solid #cccccc;
+            border-radius: 6px;
+            font-size: 12px;
+            width: 100%;
+        }
+
+        input[type="text"]:focus, select:focus {
+            border-color: #2196F3;
+            outline: none;
+        }
+
+        .color-button {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #cccccc;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .color-button:hover {
+            border-color: #2196F3;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .form-label {
+            font-size: 12px;
+            font-weight: bold;
+            min-width: 120px;
+        }
+
+        .form-control {
+            flex-grow: 1;
+        }
+
+        /* Pulsanti colorati */
+        .btn-primary { background-color: #2196F3; }
+        .btn-success { background-color: #4CAF50; }
+        .btn-warning { background-color: #FF9800; }
+        .btn-danger { background-color: #f44336; }
+        .btn-secondary { background-color: #757575; }
+
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-success:hover { background-color: #388E3C; }
+        .btn-warning:hover { background-color: #F57C00; }
+        .btn-danger:hover { background-color: #d32f2f; }
+        .btn-secondary:hover { background-color: #616161; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 15px;
+                height: auto;
+                min-height: 90px;
+            }
+            
+            .header-buttons {
+                width: 100%;
+                justify-content: space-between;
+                margin-top: 10px;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            
+            .header-buttons .modern-button {
+                flex: 1;
+                min-width: 120px;
+                font-size: 11px;
+                padding: 6px 12px;
+            }
+            
+            .modal-content {
+                width: 98%;
+                padding: 10px;
+                margin: 10px;
+            }
+            
+            .tab-header {
+                flex-wrap: wrap;
+            }
+            
+            .tab-button {
+                flex: 1;
+                min-width: 100px;
+                text-align: center;
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            
+            .menu-bar {
+                flex-wrap: wrap;
+                padding: 8px;
+            }
+            
+            .menu-item {
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+            
+            .task-card {
+                padding: 12px;
+                margin: 6px 0;
+            }
+            
+            .welcome-buttons {
+                max-width: 100%;
+                padding: 0 20px;
+            }
+            
+            .welcome-buttons .modern-button {
+                height: 50px;
+                font-size: 14px;
+            }
+            
+            .subtask {
+                align-items: flex-start;
+                padding: 10px 8px;
+            }
+            
+            .subtask-checkbox {
+                margin-top: 0;
+                width: 22px;
+                height: 22px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                font-size: 14px;
+            }
+            
+            .main-header {
+                padding: 12px;
+            }
+            
+            .header-title {
+                font-size: 18px;
+            }
+            
+            .header-buttons {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .header-buttons .modern-button {
+                width: 100%;
+            }
+            
+            .modal-content {
+                width: 100%;
+                margin: 5px;
+                border-radius: 8px;
+            }
+            
+            .modal-buttons {
+                flex-direction: column;
+            }
+            
+            .modal-buttons .modern-button {
+                width: 100%;
+            }
+            
+            .tab-button {
+                min-width: 80px;
+                padding: 6px 8px;
+                font-size: 11px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .form-label {
+                min-width: auto;
+                margin-bottom: 5px;
+            }
+            
+            .task-card {
+                padding: 10px;
+            }
+            
+            .subtask {
+                align-items: flex-start;
+                padding: 10px 8px;
+            }
+            
+            .welcome-title {
+                font-size: 24px;
+            }
+            
+            .welcome-text {
+                font-size: 13px;
+                padding: 0 10px;
+            }
+            
+            .subtask-checkbox {
+                width: 22px;
+                height: 22px;
+                margin-top: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Menu Bar -->
+    <div class="menu-bar">
+        <div class="menu-item" id="menuActions">Azioni</div>
+        <div class="menu-item" id="menuList">Lista</div>
+        <div class="menu-item" id="menuInfo">?</div>
+    </div>
+
+    <!-- Schermata di Benvenuto -->
+    <div id="welcomeScreen" class="screen active">
+        <div class="welcome-screen">
+            <img src="todo1.png" alt="Logo" class="welcome-logo">
+            <div class="welcome-title">✔️ Simply TodoTask</div>
+            <div class="welcome-text">
+                Benvenuto in Simply TodoTask!<br><br>
+                Per iniziare, carica una lista esistente<br>
+                oppure creane una nuova cliccando su Personalizza
+            </div>
+            <div class="welcome-buttons">
+                <button class="modern-button btn-primary" id="loadListBtn">📂 Carica lista TodoTask</button>
+                <button class="modern-button btn-success" id="customizeBtn">🎯 Crea / Personalizza Todo</button>
+            </div>
+            <div class="welcome-info">
+                <div class="welcome-version">Simply TodoTask v0.1</div>
+                <div class="welcome-author">Creato con ♥ da Daniele Borghi</div>
+                <div class="welcome-github" id="githubLink">Visita il mio repository su GITHUB per maggiori informazioni!</div>
+                <div class="welcome-date">Update: Nov. 2025</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schermata Principale -->
+    <div id="mainScreen" class="screen">
+        <div class="main-header">
+            <img src="todo1.png" alt="Logo" class="header-icon">
+            <div class="header-title" id="mainTitle">Simply TodoTask</div>
+            <div class="header-buttons">
+                <button class="modern-button btn-primary" id="personalizeMainBtn">Personalizza</button>
+                <button class="modern-button btn-secondary" id="resetMainBtn">Reset</button>
+            </div>
+        </div>
+        <div class="tasks-container" id="tasksContainer">
+            <!-- I task verranno inseriti qui dinamicamente -->
+        </div>
+    </div>
+
+    <!-- Modale Personalizzazione -->
+    <div id="customizeModal" class="modal">
+        <div class="modal-content" style="max-width: 950px; max-height: 750px;">
+            <div class="tab-container">
+                <div class="tab-header">
+                    <div class="tab-button active" data-tab="settings">⚙️ Impostazioni</div>
+                    <div class="tab-button" data-tab="tasks">📋 Gestione To-Do</div>
+                    <div class="tab-button" data-tab="files">💾 File e Salvataggio</div>
+                </div>
+                
+                <div class="tab-content">
+                    <!-- Tab Impostazioni -->
+                    <div id="tab-settings" class="tab-pane active">
+                        <div class="modern-card">
+                            <div style="padding: 20px;">
+                                <div style="font-size: 16px; font-weight: bold; color: #2E86AB; padding-bottom: 5px; border-bottom: 2px solid #e0e0e0; margin-bottom: 15px;">
+                                    ⚙️ Impostazioni lista
+                                </div>
+                                
+                                <div class="form-group">
+                                    <div class="form-row">
+                                        <label class="form-label">Titolo:</label>
+                                        <input type="text" id="settingsTitle" class="form-control" value="Simply TodoTask">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <div class="form-row">
+                                        <label class="form-label">Dimensione carattere:</label>
+                                        <select id="settingsFontSize" class="form-control">
+                                            <option value="small">piccolo</option>
+                                            <option value="medium" selected>medio</option>
+                                            <option value="large">grande</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="checkbox-container">
+                                    <input type="checkbox" id="settingsStrikethrough" checked>
+                                    <label for="settingsStrikethrough">Mostra testo barrato per task completati</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab Gestione To-Do -->
+                    <div id="tab-tasks" class="tab-pane">
+                        <div id="tasksTabContent">
+                            <!-- I task per la personalizzazione verranno inseriti qui -->
+                        </div>
+                        <button class="modern-button btn-success" id="addTaskBtn" style="width: 100%; margin-top: 15px;">➕ Aggiungi Nuovo To-Do</button>
+                    </div>
+                    
+                    <!-- Tab File e Salvataggio -->
+                    <div id="tab-files" class="tab-pane">
+                        <div class="modern-card">
+                            <div style="padding: 20px;">
+                                <div style="font-size: 16px; font-weight: bold; color: #2E86AB; padding-bottom: 5px; border-bottom: 2px solid #e0e0e0; margin-bottom: 15px;">
+                                    💾 Gestione File
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">File corrente:</label>
+                                    <div id="currentFilePath" style="font-size: 11px; color: #666666; background-color: #f5f5f5; padding: 10px 12px; border-radius: 6px; border: 1px solid #e0e0e0; margin-top: 5px;">
+                                        Nessun file caricato
+                                    </div>
+                                </div>
+                                
+                                <button class="modern-button btn-danger" id="unloadFileBtn" style="width: 100%; margin-top: 10px;">🗑️ Rimuovi File Corrente</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="modern-button btn-warning" id="loadConfigBtn">📂 Carica Lista</button>
+                    <button class="modern-button btn-danger" id="resetConfigBtn">🔄 Reset To-Do</button>
+                    <div style="flex-grow: 1;"></div>
+                    <button class="modern-button btn-secondary" id="cancelConfigBtn">❌ Annulla</button>
+                    <button class="modern-button btn-primary" id="saveConfigBtn">💾 Salva Modifiche</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale Salva -->
+    <div id="saveModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title">Salva lista</div>
+            <div class="modal-message">Come vuoi salvare la lista?</div>
+            <div class="modal-buttons">
+                <button class="modern-button btn-primary" id="saveBtn">💾 Salva</button>
+                <button class="modern-button btn-success" id="saveAsBtn">📁 Salva come nuovo</button>
+                <button class="modern-button btn-secondary" id="cancelSaveBtn">❌ Annulla</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale Reset -->
+    <div id="resetModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title">Reset Task</div>
+            <div class="modal-message">Cosa vuoi resettare?</div>
+            <div class="modal-buttons">
+                <button class="modern-button btn-primary" id="resetChecksBtn">🔄 Reset Check</button>
+                <button class="modern-button btn-danger" id="resetTasksBtn">🗑 Reset To-Do</button>
+                <button class="modern-button btn-secondary" id="cancelResetBtn">❌ Annulla</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale Informazioni -->
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title">✔️ Simply TodoTask</div>
+            <div style="background-color: white; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                <div style="font-size: 12px; color: #333333; line-height: 1.6; margin-bottom: 15px;">
+                    Questa applicazione ti aiuta nella gestione dei task:<br><br>
+                    • Crea e personalizza le tue liste di attività<br>
+                    • Organizza i To-Do con task e collegamenti<br>
+                    • Salva e carica le tue liste in formato testo
+                </div>
+                <div style="border-top: 1px solid #e0e0e0; margin: 10px 0; padding-top: 10px;">
+                    <div style="font-size: 12px; font-weight: bold; color: #2E86AB; margin-bottom: 5px;">👨‍💻 Sviluppato da Daniele Borghi</div>
+                    <div style="font-size: 11px; color: #666666;">📦 Versione: 0.1 (Novembre 2025)</div>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modern-button btn-secondary" id="githubModalBtn">🐙 Visita il repository su GitHub</button>
+                <button class="modern-button btn-secondary" id="closeInfoBtn">Chiudi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Input file nascosto per caricare liste -->
+    <input type="file" id="fileInput" accept=".txt" style="display: none;">
+
+    <script>
+        // Classe principale dell'applicazione
+        class TodoApp {
+            constructor() {
+                this.tasks = [];
+                this.currentFilePath = null;
+                this.settings = {
+                    title: "Simply TodoTask",
+                    fontSize: "medium",
+                    strikethrough: true
+                };
+                
+                this.init();
+            }
+            
+            init() {
+                this.bindEvents();
+                this.loadFromStorage();
+                
+                // Mostra la schermata di benvenuto
+                this.showScreen('welcomeScreen');
+            }
+            
+            bindEvents() {
+                // Navigazione tra schermate
+                document.getElementById('loadListBtn').addEventListener('click', () => this.loadConfiguration());
+                document.getElementById('customizeBtn').addEventListener('click', () => this.customizeTasks());
+                document.getElementById('personalizeMainBtn').addEventListener('click', () => this.customizeTasks());
+                
+                // Menu
+                document.getElementById('menuActions').addEventListener('click', (e) => this.showActionsMenu(e));
+                document.getElementById('menuList').addEventListener('click', (e) => this.showListMenu(e));
+                document.getElementById('menuInfo').addEventListener('click', () => this.showInfoDialog());
+                
+                // Reset
+                document.getElementById('resetMainBtn').addEventListener('click', () => this.showResetDialog());
+                document.getElementById('resetConfigBtn').addEventListener('click', () => this.showResetDialog());
+                
+                // Salvataggio
+                document.getElementById('saveConfigBtn').addEventListener('click', () => this.showSaveDialog());
+                
+                // Annullamento
+                document.getElementById('cancelConfigBtn').addEventListener('click', () => this.closeCustomizeModal());
+                
+                // Caricamento configurazione
+                document.getElementById('loadConfigBtn').addEventListener('click', () => this.loadConfiguration());
+                
+                // Aggiunta task
+                document.getElementById('addTaskBtn').addEventListener('click', () => this.addNewTask());
+                
+                // Rimozione file
+                document.getElementById('unloadFileBtn').addEventListener('click', () => this.unloadFile());
+                
+                // Tab personalizzazione
+                document.querySelectorAll('.tab-button').forEach(button => {
+                    button.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
+                });
+                
+                // Modali salva
+                document.getElementById('saveBtn').addEventListener('click', () => this.saveConfiguration());
+                document.getElementById('saveAsBtn').addEventListener('click', () => this.saveAsConfiguration());
+                document.getElementById('cancelSaveBtn').addEventListener('click', () => this.closeModal('saveModal'));
+                
+                // Modali reset
+                document.getElementById('resetChecksBtn').addEventListener('click', () => this.resetChecks());
+                document.getElementById('resetTasksBtn').addEventListener('click', () => this.resetTasks());
+                document.getElementById('cancelResetBtn').addEventListener('click', () => this.closeModal('resetModal'));
+                
+                // Modali informazioni
+                document.getElementById('githubLink').addEventListener('click', () => this.openGithub());
+                document.getElementById('githubModalBtn').addEventListener('click', () => this.openGithub());
+                document.getElementById('closeInfoBtn').addEventListener('click', () => this.closeModal('infoModal'));
+                
+                // Input file
+                document.getElementById('fileInput').addEventListener('change', (e) => this.handleFileSelect(e));
+            }
+            
+            showScreen(screenId) {
+                // Nasconde tutte le schermate
+                document.querySelectorAll('.screen').forEach(screen => {
+                    screen.classList.remove('active');
+                });
+                
+                // Mostra la schermata richiesta
+                document.getElementById(screenId).classList.add('active');
+                
+                // Se mostra la schermata principale, aggiorna i task
+                if (screenId === 'mainScreen') {
+                    this.refreshTasks();
+                }
+            }
+            
+            showModal(modalId) {
+                document.getElementById(modalId).classList.add('active');
+            }
+            
+            closeModal(modalId) {
+                document.getElementById(modalId).classList.remove('active');
+            }
+            
+            switchTab(tabId) {
+                // Aggiorna i tab button
+                document.querySelectorAll('.tab-button').forEach(button => {
+                    button.classList.remove('active');
+                });
+                document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+                
+                // Aggiorna i contenuti dei tab
+                document.querySelectorAll('.tab-pane').forEach(pane => {
+                    pane.classList.remove('active');
+                });
+                document.getElementById(`tab-${tabId}`).classList.add('active');
+                
+                // Se è il tab dei task, aggiorna la visualizzazione
+                if (tabId === 'tasks') {
+                    this.refreshTasksTab();
+                }
+            }
+            
+            // Gestione task
+            refreshTasks() {
+                const container = document.getElementById('tasksContainer');
+                container.innerHTML = '';
+                
+                // Aggiorna il titolo
+                document.getElementById('mainTitle').textContent = this.settings.title;
+                
+                if (this.tasks.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; padding: 40px; color: #666666;">Nessun task presente. Clicca "Personalizza" per aggiungerne.</div>';
+                    return;
+                }
+                
+                // Dimensioni font
+                const fontSizes = {
+                    small: 10,
+                    medium: 12,
+                    large: 14
+                };
+                const fontSize = fontSizes[this.settings.fontSize] || 12;
+                const titleFontSize = fontSize + 3;
+                
+                // Crea le card per ogni task
+                this.tasks.forEach((task, index) => {
+                    const taskCard = document.createElement('div');
+                    taskCard.className = 'task-card modern-card';
+                    
+                    // Titolo del task
+                    const titleColor = task.baseColor && task.baseColor !== 'default' ? task.baseColor : 
+                                     (task.link ? '#2E86AB' : '#1a1a1a');
+                    
+                    const titleDiv = document.createElement('div');
+                    titleDiv.className = 'task-header';
+                    
+                    const title = document.createElement('div');
+                    title.className = `task-title ${task.link ? 'has-link' : ''}`;
+                    title.textContent = task.name;
+                    title.style.color = titleColor;
+                    title.style.fontSize = `${titleFontSize}px`;
+                    
+                    if (task.link) {
+                        title.addEventListener('click', () => this.openTaskLink(task.link));
+                    }
+                    
+                    titleDiv.appendChild(title);
+                    taskCard.appendChild(titleDiv);
+                    
+                    // Sottotask
+                    task.subTasks.forEach((subTask, subIndex) => {
+                        const subtaskDiv = document.createElement('div');
+                        subtaskDiv.className = 'subtask';
+                        
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.className = 'subtask-checkbox';
+                        checkbox.id = `task-${index}-${subIndex}`;
+                        checkbox.checked = task.completed && task.completed[subIndex] || false;
+                        
+                        // Colore per i task completati
+                        const selectedColor = task.selectedColor && task.selectedColor !== 'default' ? 
+                                           task.selectedColor : '#4CAF50';
+                        
+                        const label = document.createElement('div');
+                        label.className = 'subtask-label';
+                        label.textContent = subTask;
+                        label.style.fontSize = `${fontSize}px`;
+                        
+                        if (checkbox.checked && this.settings.strikethrough) {
+                            label.classList.add('completed');
+                            label.style.color = selectedColor;
+                        }
+                        
+                        // Gestione del cambio stato della checkbox
+                        const updateCheckboxState = () => {
+                            if (!task.completed) task.completed = [];
+                            task.completed[subIndex] = checkbox.checked;
+                            
+                            if (checkbox.checked && this.settings.strikethrough) {
+                                label.classList.add('completed');
+                                label.style.color = selectedColor;
+                            } else {
+                                label.classList.remove('completed');
+                                label.style.color = '#333333';
+                            }
+                            
+                            this.saveToStorage();
+                        };
+                        
+                        checkbox.addEventListener('change', updateCheckboxState);
+                        
+                        // Rendi l'intera riga cliccabile
+                        subtaskDiv.addEventListener('click', (e) => {
+                            // Cambia lo stato della checkbox quando si clicca su qualsiasi parte della riga
+                            checkbox.checked = !checkbox.checked;
+                            updateCheckboxState();
+                        });
+                        
+                        // Impedisce che il click sulla checkbox propughi all'elemento padre
+                        checkbox.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                        });
+                        
+                        subtaskDiv.appendChild(checkbox);
+                        subtaskDiv.appendChild(label);
+                        taskCard.appendChild(subtaskDiv);
+                    });
+                    
+                    container.appendChild(taskCard);
+                });
+            }
+            
+            refreshTasksTab() {
+                const container = document.getElementById('tasksTabContent');
+                container.innerHTML = '';
+                
+                if (this.tasks.length === 0) {
+                    container.innerHTML = `
+                        <div style="font-size: 14px; color: #666666; text-align: center; padding: 40px; background-color: white; border-radius: 8px; border: 2px dashed #cccccc;">
+                            Nessun To-Do presente. Clicca 'Aggiungi Nuovo To-Do' per iniziare!
+                        </div>
+                    `;
+                    return;
+                }
+                
+                this.tasks.forEach((task, index) => {
+                    const taskCard = this.createTaskConfigCard(task, index);
+                    container.appendChild(taskCard);
+                });
+            }
+            
+            createTaskConfigCard(task, index) {
+                const card = document.createElement('div');
+                card.className = 'modern-card';
+                card.style.marginBottom = '15px';
+                
+                card.innerHTML = `
+                    <div style="padding: 20px;">
+                        <!-- Header -->
+                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                            <div style="font-size: 14px; font-weight: bold; color: #2E86AB;">📝 To-Do #${index + 1}</div>
+                            <div style="flex-grow: 1;"></div>
+                            <button class="modern-button btn-danger delete-task-btn" data-index="${index}" style="height: 30px; font-size: 10px;">🗑 Elimina</button>
+                        </div>
+                        
+                        <!-- Dettagli -->
+                        <div class="modern-card" style="background-color: #f8f9fa; margin-bottom: 15px;">
+                            <div style="padding: 15px;">
+                                <div style="margin-bottom: 10px;">
+                                    <div style="font-size: 11px; font-weight: bold; color: #555555; margin-bottom: 5px;">Titolo:</div>
+                                    <input type="text" class="task-name-input" data-index="${index}" value="${this.escapeHtml(task.name)}" style="width: 100%;">
+                                </div>
+                                <div>
+                                    <div style="font-size: 11px; font-weight: bold; color: #555555; margin-bottom: 5px;">Collegamento (opzionale):</div>
+                                    <div style="display: flex; gap: 8px;">
+                                        <input type="text" class="task-link-input" data-index="${index}" value="${this.escapeHtml(task.link || '')}" style="flex-grow: 1;">
+                                        <button class="modern-button browse-link-btn" data-index="${index}" style="background-color: #E0E0E0; color: #333333; height: 35px;">Sfoglia</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Sottotask -->
+                        <div class="modern-card" style="background-color: #f8f9fa; margin-bottom: 15px;">
+                            <div style="padding: 15px;">
+                                <div style="font-size: 12px; font-weight: bold; color: #555555; margin-bottom: 8px;">📋 Task:</div>
+                                <div class="subtasks-container" data-index="${index}">
+                                    <!-- I sottotask verranno aggiunti qui -->
+                                </div>
+                                <button class="modern-button add-subtask-btn" data-index="${index}" style="background-color: #E0E0E0; color: #333333; height: 35px; width: 100%; margin-top: 10px;">➕ Aggiungi Task</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Colori -->
+                        <div class="modern-card" style="background-color: #f8f9fa;">
+                            <div style="padding: 15px;">
+                                <div style="font-size: 12px; font-weight: bold; color: #555555; margin-bottom: 8px;">🎨 Personalizzazione Colori</div>
+                                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div style="font-size: 11px; font-weight: bold; color: #666666;">Colore titolo:</div>
+                                        <div class="color-button base-color-btn" data-index="${index}" style="background-color: ${task.baseColor && task.baseColor !== 'default' ? task.baseColor : '#1a1a1a'};"></div>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div style="font-size: 11px; font-weight: bold; color: #666666;">Colore completato:</div>
+                                        <div class="color-button selected-color-btn" data-index="${index}" style="background-color: ${task.selectedColor && task.selectedColor !== 'default' ? task.selectedColor : '#4CAF50'};"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Aggiungi i sottotask
+                const subtasksContainer = card.querySelector('.subtasks-container');
+                task.subTasks.forEach((subTask, subIndex) => {
+                    this.addSubtaskEntry(subtasksContainer, task, index, subIndex, subTask);
+                });
+                
+                // Aggiungi event listeners
+                card.querySelector('.delete-task-btn').addEventListener('click', () => this.deleteTask(index));
+                card.querySelector('.task-name-input').addEventListener('change', (e) => {
+                    this.tasks[index].name = e.target.value;
+                });
+                card.querySelector('.task-link-input').addEventListener('change', (e) => {
+                    this.tasks[index].link = e.target.value;
+                });
+                card.querySelector('.browse-link-btn').addEventListener('click', () => this.browseFile(index));
+                card.querySelector('.add-subtask-btn').addEventListener('click', () => this.addSubtaskEntry(subtasksContainer, task, index));
+                card.querySelector('.base-color-btn').addEventListener('click', () => this.chooseColor(index, 'base'));
+                card.querySelector('.selected-color-btn').addEventListener('click', () => this.chooseColor(index, 'selected'));
+                
+                return card;
+            }
+            
+            addSubtaskEntry(container, task, taskIndex, subIndex = null, text = "") {
+                const entryDiv = document.createElement('div');
+                entryDiv.style.display = 'flex';
+                entryDiv.style.gap = '8px';
+                entryDiv.style.marginBottom = '8px';
+                
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = text;
+                input.style.flexGrow = '1';
+                input.style.padding = '8px 12px';
+                input.style.border = '1px solid #cccccc';
+                input.style.borderRadius = '6px';
+                input.style.fontSize = '11px';
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = '❌';
+                deleteBtn.style.backgroundColor = '#f44336';
+                deleteBtn.style.color = 'white';
+                deleteBtn.style.border = 'none';
+                deleteBtn.style.borderRadius = '4px';
+                deleteBtn.style.fontSize = '9px';
+                deleteBtn.style.width = '25px';
+                deleteBtn.style.height = '25px';
+                deleteBtn.style.cursor = 'pointer';
+                
+                if (subIndex === null) {
+                    // Nuovo sottotask
+                    subIndex = task.subTasks.length;
+                    task.subTasks.push(text);
+                }
+                
+                input.addEventListener('change', () => {
+                    task.subTasks[subIndex] = input.value;
+                });
+                
+                deleteBtn.addEventListener('click', () => {
+                    task.subTasks.splice(subIndex, 1);
+                    container.removeChild(entryDiv);
+                    this.refreshTasksTab();
+                });
+                
+                entryDiv.appendChild(input);
+                entryDiv.appendChild(deleteBtn);
+                container.appendChild(entryDiv);
+            }
+            
+            addNewTask() {
+                const newTask = {
+                    name: "Nuovo To-Do",
+                    subTasks: ["Nuovo task"],
+                    baseColor: "default",
+                    selectedColor: "default",
+                    link: ""
+                };
+                this.tasks.push(newTask);
+                this.refreshTasksTab();
+            }
+            
+            deleteTask(index) {
+                if (confirm(`Sei sicuro di voler eliminare il To-Do #${index + 1}?`)) {
+                    this.tasks.splice(index, 1);
+                    this.refreshTasksTab();
+                }
+            }
+            
+            chooseColor(taskIndex, colorType) {
+                const currentColor = this.tasks[taskIndex][`${colorType}Color`] || 'default';
+                let initialColor;
+                
+                if (currentColor !== 'default') {
+                    initialColor = currentColor;
+                } else {
+                    initialColor = colorType === 'base' ? '#1a1a1a' : '#4CAF50';
+                }
+                
+                // Simulazione di un color picker (semplificata)
+                const newColor = prompt(`Inserisci il colore per ${colorType === 'base' ? 'titolo' : 'completato'} (esadecimale):`, initialColor);
+                
+                if (newColor && /^#[0-9A-F]{6}$/i.test(newColor)) {
+                    this.tasks[taskIndex][`${colorType}Color`] = newColor;
+                    this.refreshTasksTab();
+                } else if (newColor === '' || newColor === 'default') {
+                    this.tasks[taskIndex][`${colorType}Color`] = 'default';
+                    this.refreshTasksTab();
+                } else if (newColor) {
+                    alert('Formato colore non valido. Usa il formato esadecimale (#RRGGBB).');
+                }
+            }
+            
+            browseFile(taskIndex) {
+                // In un ambiente web non possiamo sfogliare il file system
+                // Quindi chiediamo all'utente di inserire un URL
+                const url = prompt('Inserisci un URL o un percorso file:');
+                if (url) {
+                    this.tasks[taskIndex].link = url;
+                    this.refreshTasksTab();
+                }
+            }
+            
+            // Gestione file e salvataggio
+            loadConfiguration() {
+                document.getElementById('fileInput').click();
+            }
+            
+            handleFileSelect(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const content = e.target.result;
+                        this.parseFileContent(content, file.name);
+                        this.closeCustomizeModal();
+                    } catch (error) {
+                        alert(`Impossibile caricare la lista: ${error}`);
+                    }
+                };
+                reader.readAsText(file);
+            }
+            
+            parseFileContent(content, fileName) {
+                const lines = content.split('\n');
+                const tasks = [];
+                const settings = {
+                    title: "Simply TodoTask",
+                    fontSize: "medium",
+                    strikethrough: true
+                };
+                
+                let currentTask = null;
+                let i = 0;
+                
+                while (i < lines.length) {
+                    const line = lines[i].trim();
+                    
+                    if (line.startsWith("[SETTINGS]")) {
+                        i++;
+                        while (i < lines.length && !lines[i].startsWith("[TASK]") && lines[i].trim() !== "") {
+                            const settingLine = lines[i].trim();
+                            if (settingLine.startsWith("title=")) {
+                                settings.title = settingLine.substring(6);
+                            } else if (settingLine.startsWith("font_size=")) {
+                                const fontSize = settingLine.substring(10);
+                                settings.fontSize = fontSize === "piccolo" ? "small" : 
+                                                  fontSize === "medio" ? "medium" : 
+                                                  fontSize === "grande" ? "large" : "medium";
+                            } else if (settingLine.startsWith("strikethrough=")) {
+                                settings.strikethrough = settingLine.substring(14).toLowerCase() === "true";
+                            }
+                            i++;
+                        }
+                        continue;
+                    } else if (line.startsWith("[TASK]")) {
+                        if (currentTask) {
+                            tasks.push(currentTask);
+                        }
+                        currentTask = {
+                            name: "",
+                            subTasks: [],
+                            baseColor: "default",
+                            selectedColor: "default",
+                            link: ""
+                        };
+                    } else if (line.startsWith("name=") && currentTask) {
+                        currentTask.name = line.substring(5);
+                    } else if (line.startsWith("base_color=") && currentTask) {
+                        currentTask.baseColor = line.substring(11);
+                    } else if (line.startsWith("selected_color=") && currentTask) {
+                        currentTask.selectedColor = line.substring(15);
+                    } else if (line.startsWith("link=") && currentTask) {
+                        currentTask.link = line.substring(5);
+                    } else if (line.startsWith("sub_task=") && currentTask) {
+                        currentTask.subTasks.push(line.substring(9));
+                    }
+                    i++;
+                }
+                
+                if (currentTask) {
+                    tasks.push(currentTask);
+                }
+                
+                this.tasks = tasks;
+                this.settings = settings;
+                this.currentFilePath = fileName;
+                
+                // Aggiorna l'interfaccia
+                this.refreshTasks();
+                this.showScreen('mainScreen');
+                
+                // Aggiorna la modale di personalizzazione
+                document.getElementById('settingsTitle').value = settings.title;
+                document.getElementById('settingsFontSize').value = settings.fontSize;
+                document.getElementById('settingsStrikethrough').checked = settings.strikethrough;
+                document.getElementById('currentFilePath').textContent = fileName;
+            }
+            
+            saveConfiguration() {
+                if (!this.currentFilePath) {
+                    this.saveAsConfiguration();
+                    return;
+                }
+                
+                this.saveToFile(this.currentFilePath);
+                this.closeModal('saveModal');
+                this.closeCustomizeModal();
+            }
+            
+            saveAsConfiguration() {
+                const fileName = prompt("Inserisci il nome del file (senza estensione):", "todolist");
+                if (fileName) {
+                    this.saveToFile(fileName + ".txt");
+                    this.closeModal('saveModal');
+                    this.closeCustomizeModal();
+                }
+            }
+            
+            saveToFile(fileName) {
+                // Aggiorna le impostazioni dalla modale
+                this.settings.title = document.getElementById('settingsTitle').value;
+                this.settings.fontSize = document.getElementById('settingsFontSize').value;
+                this.settings.strikethrough = document.getElementById('settingsStrikethrough').checked;
+                
+                // Converti fontSize per il salvataggio
+                const fontSizeMap = {
+                    small: "piccolo",
+                    medium: "medio",
+                    large: "grande"
+                };
+                
+                let content = "[SETTINGS]\n";
+                content += `title=${this.settings.title}\n`;
+                content += `font_size=${fontSizeMap[this.settings.fontSize] || "medio"}\n`;
+                content += `strikethrough=${this.settings.strikethrough}\n`;
+                content += "\n";
+                
+                this.tasks.forEach(task => {
+                    content += "[TASK]\n";
+                    content += `name=${task.name}\n`;
+                    content += `base_color=${task.baseColor || "default"}\n`;
+                    content += `selected_color=${task.selectedColor || "default"}\n`;
+                    content += `link=${task.link || ""}\n`;
+                    
+                    task.subTasks.forEach(subTask => {
+                        content += `sub_task=${subTask}\n`;
+                    });
+                    
+                    content += "\n";
+                });
+                
+                // Crea e scarica il file
+                const blob = new Blob([content], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                this.currentFilePath = fileName;
+                document.getElementById('currentFilePath').textContent = fileName;
+                
+                // Salva anche in localStorage
+                this.saveToStorage();
+            }
+            
+            unloadFile() {
+                if (confirm("Vuoi rimuovere il file corrente dalla memoria?\n\nLa lista corrente verrà svuotata.")) {
+                    this.currentFilePath = null;
+                    this.tasks = [];
+                    this.settings = {
+                        title: "Simply TodoTask",
+                        fontSize: "medium",
+                        strikethrough: true
+                    };
+                    
+                    document.getElementById('currentFilePath').textContent = "Nessun file caricato";
+                    this.closeCustomizeModal();
+                    this.showWelcomeScreen();
+                }
+            }
+            
+            // Altre funzionalità
+            customizeTasks() {
+                // Aggiorna le impostazioni nella modale
+                document.getElementById('settingsTitle').value = this.settings.title;
+                document.getElementById('settingsFontSize').value = this.settings.fontSize;
+                document.getElementById('settingsStrikethrough').checked = this.settings.strikethrough;
+                document.getElementById('currentFilePath').textContent = this.currentFilePath || "Nessun file caricato";
+                
+                // Aggiorna la visualizzazione dei task
+                this.refreshTasksTab();
+                
+                // Mostra la modale
+                this.showModal('customizeModal');
+                this.switchTab('settings');
+            }
+            
+            closeCustomizeModal() {
+                this.closeModal('customizeModal');
+            }
+            
+            showSaveDialog() {
+                this.showModal('saveModal');
+            }
+            
+            showResetDialog() {
+                this.showModal('resetModal');
+            }
+            
+            showInfoDialog() {
+                this.showModal('infoModal');
+            }
+            
+            resetChecks() {
+                // Resetta tutti i checkbox
+                this.tasks.forEach(task => {
+                    if (task.completed) {
+                        task.completed = task.completed.map(() => false);
+                    }
+                });
+                
+                this.refreshTasks();
+                this.closeModal('resetModal');
+                this.saveToStorage();
+            }
+            
+            resetTasks() {
+                if (confirm("Sei sicuro di voler resettare tutti i task? Questa operazione non può essere annullata.")) {
+                    this.tasks = [];
+                    this.refreshTasks();
+                    this.closeModal('resetModal');
+                    this.saveToStorage();
+                }
+            }
+            
+            showWelcomeScreen() {
+                this.showScreen('welcomeScreen');
+            }
+            
+            openTaskLink(link) {
+                if (link.startsWith('http')) {
+                    window.open(link, '_blank');
+                } else {
+                    alert('I file locali non possono essere aperti in un browser web per motivi di sicurezza.');
+                }
+            }
+            
+            openGithub() {
+                window.open('https://github.com/danjiss/Simply-TodoTask-Checklist', '_blank');
+            }
+            
+            showActionsMenu(e) {
+                // Creazione di un menu contestuale semplice
+                const menu = document.createElement('div');
+                menu.style.position = 'absolute';
+                menu.style.backgroundColor = 'white';
+                menu.style.border = '1px solid #cccccc';
+                menu.style.borderRadius = '6px';
+                menu.style.padding = '4px';
+                menu.style.zIndex = '1000';
+                menu.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
+                
+                menu.innerHTML = `
+                    <div class="menu-item" style="display: block; padding: 6px 24px 6px 12px;" id="menuReset">Reset</div>
+                    <div class="menu-item" style="display: block; padding: 6px 24px 6px 12px;" id="menuPersonalize">Crea To-Do</div>
+                `;
+                
+                document.body.appendChild(menu);
+                
+                // Posiziona il menu
+                const rect = e.target.getBoundingClientRect();
+                menu.style.top = `${rect.bottom}px`;
+                menu.style.left = `${rect.left}px`;
+                
+                // Aggiungi event listeners
+                menu.querySelector('#menuReset').addEventListener('click', () => {
+                    document.body.removeChild(menu);
+                    this.showResetDialog();
+                });
+                
+                menu.querySelector('#menuPersonalize').addEventListener('click', () => {
+                    document.body.removeChild(menu);
+                    this.customizeTasks();
+                });
+                
+                // Chiudi il menu quando si clicca altrove
+                const closeMenu = (event) => {
+                    if (!menu.contains(event.target) && event.target !== e.target) {
+                        document.body.removeChild(menu);
+                        document.removeEventListener('click', closeMenu);
+                    }
+                };
+                
+                setTimeout(() => {
+                    document.addEventListener('click', closeMenu);
+                }, 0);
+            }
+            
+            showListMenu(e) {
+                // Creazione di un menu contestuale semplice
+                const menu = document.createElement('div');
+                menu.style.position = 'absolute';
+                menu.style.backgroundColor = 'white';
+                menu.style.border = '1px solid #cccccc';
+                menu.style.borderRadius = '6px';
+                menu.style.padding = '4px';
+                menu.style.zIndex = '1000';
+                menu.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
+                
+                menu.innerHTML = `
+                    <div class="menu-item" style="display: block; padding: 6px 24px 6px 12px;" id="menuSave">Salva lista</div>
+                    <div class="menu-item" style="display: block; padding: 6px 24px 6px 12px;" id="menuLoad">Carica lista</div>
+                `;
+                
+                document.body.appendChild(menu);
+                
+                // Posiziona il menu
+                const rect = e.target.getBoundingClientRect();
+                menu.style.top = `${rect.bottom}px`;
+                menu.style.left = `${rect.left}px`;
+                
+                // Aggiungi event listeners
+                menu.querySelector('#menuSave').addEventListener('click', () => {
+                    document.body.removeChild(menu);
+                    this.showSaveDialog();
+                });
+                
+                menu.querySelector('#menuLoad').addEventListener('click', () => {
+                    document.body.removeChild(menu);
+                    this.loadConfiguration();
+                });
+                
+                // Chiudi il menu quando si clicca altrove
+                const closeMenu = (event) => {
+                    if (!menu.contains(event.target) && event.target !== e.target) {
+                        document.body.removeChild(menu);
+                        document.removeEventListener('click', closeMenu);
+                    }
+                };
+                
+                setTimeout(() => {
+                    document.addEventListener('click', closeMenu);
+                }, 0);
+            }
+            
+            // Salvataggio in localStorage
+            saveToStorage() {
+                const data = {
+                    tasks: this.tasks,
+                    settings: this.settings,
+                    currentFilePath: this.currentFilePath
+                };
+                localStorage.setItem('todoAppData', JSON.stringify(data));
+            }
+            
+            loadFromStorage() {
+                const data = localStorage.getItem('todoAppData');
+                if (data) {
+                    try {
+                        const parsed = JSON.parse(data);
+                        this.tasks = parsed.tasks || [];
+                        this.settings = parsed.settings || {
+                            title: "Simply TodoTask",
+                            fontSize: "medium",
+                            strikethrough: true
+                        };
+                        this.currentFilePath = parsed.currentFilePath || null;
+                        
+                        // Se ci sono task, mostra la schermata principale
+                        if (this.tasks.length > 0) {
+                            this.showScreen('mainScreen');
+                        }
+                    } catch (e) {
+                        console.error('Errore nel caricamento dei dati:', e);
+                    }
+                }
+            }
+            
+            // Utility
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+        }
+
+        // Inizializza l'app quando la pagina è caricata
+        document.addEventListener('DOMContentLoaded', () => {
+            window.todoApp = new TodoApp();
+        });
+    </script>
+</body>
+</html>
