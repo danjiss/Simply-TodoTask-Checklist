@@ -48,14 +48,11 @@ pip install PyQt6
 
 📷 Screenshots
 
-<div align="left">
-
-<a href="https://github.com/danjiss/Simply-TodoTask-Checklist">
+<div style="display: flex; gap: 10px; align-items: left;">
   <img src="https://github.com/user-attachments/assets/9c384fd8-09d5-423c-8253-2b1405651bf8" width="400px">
-</a>
-<a href="https://github.com/danjiss/Simply-TodoTask-Checklist">
   <img src="https://github.com/user-attachments/assets/976b85a7-95b6-4b3f-a57e-0c52019e4b62" width="400px">
-</a>
+</div>
+
 
 </div>
 
