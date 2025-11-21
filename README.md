@@ -15,9 +15,9 @@ It supports multiple lists, subtasks, colors, file links, export, and includes b
 * Strikethrough option for completed items
 * Save & load lists in a readable .txt format
 * Reset functions (checks only or full reset)
-* Standalone HTML version included
 * English and Italian version included
 * Works out of the box with PyQt6
+* **Standalone HTML version included**
 
 <br>
 
