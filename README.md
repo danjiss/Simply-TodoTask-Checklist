@@ -48,20 +48,20 @@ pip install PyQt6
 
 📷 Screenshots
 
-<div align="center">
+<div align="left">
 
 <a href="https://github.com/danjiss/Simply-TodoTask-Checklist">
-  <img src="https://github.com/user-attachments/assets/9c384fd8-09d5-423c-8253-2b1405651bf8" width="502px">
+  <img src="https://github.com/user-attachments/assets/9c384fd8-09d5-423c-8253-2b1405651bf8" width="400px">
 </a>
 <a href="https://github.com/danjiss/Simply-TodoTask-Checklist">
-  <img src="https://github.com/user-attachments/assets/976b85a7-95b6-4b3f-a57e-0c52019e4b62" width="502px">
+  <img src="https://github.com/user-attachments/assets/976b85a7-95b6-4b3f-a57e-0c52019e4b62" width="400px">
 </a>
 
 </div>
 
-<img width="952" height="611" alt="immagine" src="https://github.com/user-attachments/assets/cc132b7b-1840-46cf-8df8-adc829ff87b2" />
+<img width="800" height="611" alt="immagine" src="https://github.com/user-attachments/assets/cc132b7b-1840-46cf-8df8-adc829ff87b2" />
 
-<img width="952" height="862" alt="immagine" src="https://github.com/user-attachments/assets/3c6f0ed7-f666-4b1a-a923-54de7114343b" />
+<img width="800" height="862" alt="immagine" src="https://github.com/user-attachments/assets/3c6f0ed7-f666-4b1a-a923-54de7114343b" />
 
 
 
