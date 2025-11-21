@@ -21,7 +21,14 @@ It supports multiple lists, subtasks, colors, file links, export, and includes b
 
 <br>
 
-🛠 Installation
+📥 Download
+
+Get the latest precompiled **Windows executable** and **standalone HTML version** of **Simply ToDoTask** directly from the GitHub releases page [here](https://github.com/danjiss/Simply-TodoTask-Checklist/releases/).
+
+
+<br>
+
+🛠 Installation (for manual setup)
 1. Clone the repository
 
 ```bash
@@ -43,6 +50,7 @@ pip install PyQt6
 
 * Dark/Light Theme Toggle
 * Integrated Language Switcher
+* Some bugfix
 
 <br>
 
