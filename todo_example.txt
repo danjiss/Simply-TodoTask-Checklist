@@ -1,0 +1,101 @@
+[SETTINGS]
+title=Daily Work Tasks
+font_size=small
+strikethrough=True
+
+[TASK]
+name=1. Check Email & Messages
+base_color=#0080c0
+selected_color=#00a5f4
+link=
+sub_task=Review unread emails and flag important ones.
+sub_task=Reply to urgent messages on Slack/Teams.
+
+[TASK]
+name=2. Code Review Session
+base_color=#306998
+selected_color=#4b8cd6
+link=
+sub_task=Check pending pull requests.
+sub_task=Add comments and approve clean code.
+
+[TASK]
+name=3. Debug Pending Issues
+base_color=#003c3c
+selected_color=#478f8f
+link=
+sub_task=Reproduce reported bugs in dev environment.
+sub_task=Write a brief summary in the issue tracker.
+
+[TASK]
+name=4. Implement New Feature
+base_color=#8c0000
+selected_color=#fe5c61
+link=
+sub_task=Create feature branch from 'dev'.
+sub_task=Implement UI logic and required backend calls.
+sub_task=Commit & push code before lunch break.
+
+[TASK]
+name=5. Documentation Update
+base_color=#ff5c0f
+selected_color=#ffb062
+link=
+sub_task=Update README with new instructions.
+sub_task=Improve wording in technical sections.
+
+[TASK]
+name=6. Meeting: Project Sync
+base_color=default
+selected_color=default
+link=
+sub_task=Join daily standup meeting.
+sub_task=Prepare 30-second summary of progress & blockers.
+
+[TASK]
+name=7. Test Automation Run
+base_color=#4589ce
+selected_color=#52a3f5
+link=
+sub_task=Trigger CI workflow for automated tests.
+sub_task=Check test logs for failures.
+
+[TASK]
+name=8. File & Folder Cleanup
+base_color=default
+selected_color=default
+link=
+sub_task=Remove temporary build files.
+sub_task=Organize project folders for clarity.
+
+[TASK]
+name=9. Backup Important Data
+base_color=default
+selected_color=default
+link=
+sub_task=Copy project files to NAS/cloud storage.
+sub_task=Verify last successful backup date.
+
+[TASK]
+name=10. Performance Check
+base_color=#2c5884
+selected_color=#08d2ff
+link=
+sub_task=Run performance profiling on current build.
+sub_task=Identify slow functions for future optimization.
+
+[TASK]
+name=11. Security Scan
+base_color=default
+selected_color=default
+link=
+sub_task=Run dependency vulnerability scan.
+sub_task=Update outdated packages if needed.
+
+[TASK]
+name=12. End-of-Day Wrap-Up
+base_color=default
+selected_color=default
+link=
+sub_task=Review completed tasks and mark them as done.
+sub_task=Plan tasks for tomorrow in Simply ToDo.
